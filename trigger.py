@@ -2,7 +2,8 @@ import os, shutil, subprocess, json
 import random
 import config as cfg
 
-label_map = ['car', 'truck', 'bus', 'pedestrian', 'cyclist']
+# label_map = ['car', 'truck', 'bus', 'pedestrian', 'cyclist']
+label_map = cfg.labels
 
 with open(cfg.raw_ann) as fp:
     d1 = json.load(fp)
@@ -29,12 +30,13 @@ for frame in d1['frames']:
     for x, bbox in enumerate(frame['annos']['boxes_2d'][cfg.cam]):
         if sum(bbox) > 0:
             label = labels[x]
-            idx = int(label_map.index(label.lower()))
-            x_c = ((bbox[0]+bbox[2])/2)/img_w
-            y_c = ((bbox[1]+bbox[3])/2)/img_h
-            w = (bbox[2]-bbox[0])/img_w
-            h = (bbox[3]-bbox[1])/img_h
-            write_lines.append(' '.join([str(it) for it in [idx, x_c, y_c, w, h]]))
+            if label.lower() in label_map:
+                idx = int(label_map.index(label.lower()))
+                x_c = ((bbox[0]+bbox[2])/2)/img_w
+                y_c = ((bbox[1]+bbox[3])/2)/img_h
+                w = (bbox[2]-bbox[0])/img_w
+                h = (bbox[3]-bbox[1])/img_h
+                write_lines.append(' '.join([str(it) for it in [idx, x_c, y_c, w, h]]))
     if write_lines:
         with open(file_name, 'a+') as fp:
             fp.writelines('\n'.join(write_lines))
